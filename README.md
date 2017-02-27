@@ -2,6 +2,14 @@
 
 A Docker container to securely control a remote docker daemon CLI using ssh forwarding, no SSL setup needed.
 
+## Setup
+
+In order to use `remote-docker` with your Docker server, you need to configure SSH-key based authentication for your Docker server machine. There are lots of tutorials available: you can use [this](https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server) for example.
+
+You should add you SSH public key to your Docker server and keep private key for using in `remote-docker` container. You can pass this key either as file (using `-v` option) or as environment variable (`-e SSH_KEY=...`). 
+
+From now on, you should be able to run any `docker` command on your server through SSH tunneling. 
+
 ## Usage
 
 Lets assume you want to control the docker daemon on your `webserver.com` server. You need to run a `codefresh/remote-docker` Docker container, passing `ssh` private key file to it, like this:

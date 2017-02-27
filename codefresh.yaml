@@ -1,0 +1,19 @@
+version: '1.0'
+
+steps:
+
+  build_image:
+    type: build
+    title: Build remote-docker image 
+    dockerfile: Dockerfile
+    working-directory: ${{main_clone}}
+    image-name: codefresh/remote-docker
+
+  push_to_registry:
+    type: push
+    title: Pushing to DockerHub
+    candidate: '${{build_image}}'
+    tag: 'latest'
+    credentials:
+      username: '${{dockerUsername}}'
+      password: '${{dockerPassword}}'
