@@ -23,3 +23,8 @@ COPY rdocker.sh /usr/local/bin/rdocker
 RUN chmod +x /usr/local/bin/rdocker
 
 CMD ["rdocker"]
+
+# labels for https://microbadger.com/ service
+ARG GH_SHA
+LABEL org.label-schema.vcs-ref=$GH_SHA \
+      org.label-schema.vcs-url="https://github.com/codefresh-io/remote-docker"

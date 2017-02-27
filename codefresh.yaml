@@ -8,6 +8,8 @@ steps:
     dockerfile: Dockerfile
     working-directory: ${{main_clone}}
     image-name: codefresh/remote-docker
+    build_arguments:
+      - GH_SHA=${{CF_REVISION}}
 
   push_to_registry:
     type: push

@@ -1,5 +1,11 @@
 # remote-docker
 
+#### Build
+[![Codefresh build status]( https://g.codefresh.io/api/badges/build?repoOwner=codefresh-io&repoName=remote-docker&branch=master&pipelineName=remote-docker&accountName=codefresh-inc&type=cf-2)]( https://g.codefresh.io/repositories/codefresh-io/remote-docker/builds?filter=trigger:build;branch:master;service:58b405b7a6eaef0100345945~remote-docker)
+
+#### Image
+[![](https://images.microbadger.com/badges/image/codefresh/remote-docker.svg)](http://microbadger.com/images/codefresh/remote-docker) [![](https://images.microbadger.com/badges/version/codefresh/remote-docker.svg)](http://microbadger.com/images/codefresh/remote-docker) [![](https://images.microbadger.com/badges/commit/codefresh/remote-docker.svg)](http://microbadger.com/images/codefresh/remote-docker) 
+
 A Docker container to securely control a remote docker daemon CLI using ssh forwarding, no SSL setup needed.
 
 ## Setup
