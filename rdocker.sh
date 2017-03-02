@@ -17,7 +17,11 @@ if [[ ! -f "$ssh_key_file" ]]; then
   if [[ ! -z "${SSH_KEY}" ]]; then
     echo "SSH key passed through SSH_KEY environment variable: lenght check ${#SSH_KEY}"
     mkdir -p ~/.ssh
-    printf "%s" "${SSH_KEY}" > "$ssh_key_file"
+    if [[ ! -z "${SPLIT_CHAR}" ]]; then
+      echo "${SSH_KEY}" | tr \'"${SPLIT_CHAR}"\' '\n' > "$ssh_key_file"
+    else
+      echo "${SSH_KEY}" > "$ssh_key_file"
+    fi
     chmod 600 "$ssh_key_file"
   fi
 else
