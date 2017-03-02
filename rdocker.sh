@@ -15,10 +15,13 @@ fi
 ssh_key_file="$HOME/.ssh/id_rdocker"
 if [[ ! -f "$ssh_key_file" ]]; then 
   if [[ ! -z "${SSH_KEY}" ]]; then
+    echo "SSH key passed through SSH_KEY environment variable: lenght check ${#SSH_KEY}"
     mkdir -p ~/.ssh
     printf "%s" "${SSH_KEY}" > "$ssh_key_file"
     chmod 600 "$ssh_key_file"
   fi
+else
+  echo "Found $ssh_key_file file"
 fi
 
 #Extracting parameters
