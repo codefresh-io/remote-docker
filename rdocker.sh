@@ -1,5 +1,6 @@
 #!/bin/bash
-# set -e
+set -e
+
 re='^[0-9]+$'
 if [[ $# -eq 0 || $1 == "-h" || $1 == "-help" ]]; then
     echo "Usage: rdocker [-h|-help] [user@]hostname [port] [cmd]"
