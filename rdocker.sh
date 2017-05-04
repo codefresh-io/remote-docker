@@ -139,7 +139,10 @@ exec 3<>"$PIPE"; rm "$PIPE"
 local_port=${local_port:-$(python -c "$find_port_code")}
 
 remote_script_path="/tmp/rdocker-forwarder.py"
-printf "%s" "$forwarder" | ssh -i "$ssh_key_file" "$remote_host" -o ControlPath="$control_path" -L "$local_port:localhost:$remote_port" "cat > ${remote_script_path}""; exec python -u ${remote_script_path}" 1>&3 &
+remote_python="docker run -i --rm --name remote_python --network=host -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock frolvlad/alpine-python2 python"
+# remote_python="python"
+
+printf "%s" "$forwarder" | ssh -i "$ssh_key_file" "$remote_host" -o ControlPath="$control_path" -L "$local_port:localhost:$remote_port" "cat > ${remote_script_path}""; exec ${remote_python} -u ${remote_script_path}" 1>&3 &
 CONNECTION_PID=$!
 # wait for it's output
 read -r -u 3 -d . line
@@ -153,6 +156,7 @@ if [[ "$line" == "$success_msg" ]]; then
         exit_status=$?
         kill -15 $CONNECTION_PID
         #clear the ssh control connection
+        ssh -i "$ssh_key_file" "$remote_host" "docker rm -f remote_python" 1>& 2> /dev/null
         ssh -O exit -o ControlPath="$control_path" "$remote_host" "" 2> /dev/null
         rm -f "$control_path"
         #exit with the same status as the command
@@ -176,5 +180,6 @@ else
 fi
 
 #clear the ssh control connection
+ssh -i "$ssh_key_file" "$remote_host" "docker rm -f remote_python" 1>& 2> /dev/null
 ssh -O exit -o ControlPath="$control_path" "$remote_host" "" 2> /dev/null
 rm -f "$control_path"
