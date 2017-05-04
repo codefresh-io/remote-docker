@@ -13,9 +13,22 @@ steps:
 
   push_to_registry:
     type: push
-    title: Pushing to DockerHub
+    title: Pushing master to DockerHub
     candidate: '${{build_image}}'
     tag: 'latest'
+    credentials:
+      username: '${{dockerUsername}}'
+      password: '${{dockerPassword}}'
+    when:
+      branch:
+        only:
+          - master
+
+  tag_branch_registry:
+    type: push
+    title: Pushing ${{CF_BRANCH}} to DockerHub
+    candidate: '${{build_image}}'
+    tag: ${{CF_BRANCH}}
     credentials:
       username: '${{dockerUsername}}'
       password: '${{dockerPassword}}'
