@@ -16,9 +16,6 @@ steps:
     title: Pushing master to DockerHub
     candidate: '${{build_image}}'
     tag: 'latest'
-    credentials:
-      username: '${{dockerUsername}}'
-      password: '${{dockerPassword}}'
     when:
       branch:
         only:
@@ -29,6 +26,3 @@ steps:
     title: Pushing ${{CF_BRANCH}} to DockerHub
     candidate: '${{build_image}}'
     tag: ${{CF_BRANCH}}
-    credentials:
-      username: '${{dockerUsername}}'
-      password: '${{dockerPassword}}'
