@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+SSH_PORT=${SSH_PORT:-22}
+
 re='^[0-9]+$'
 if [[ $# -eq 0 || $1 == "-h" || $1 == "-help" ]]; then
     echo "Usage: rdocker [-h|-help] [user@]hostname [port] [cmd]"
@@ -9,6 +11,7 @@ if [[ $# -eq 0 || $1 == "-h" || $1 == "-help" ]]; then
     echo "    user@hostname   ssh remote login address"
     echo "    port            local port used to forward the remote docker daemon, if not present a free random port will be used"
     echo "    cmd             when provided, it is the only command run on the remote host (no bash session is created)"
+    echo "    SSH_PORT        set ssh port through environment variable (default: 22)"
     exit
 fi
 
@@ -39,7 +42,7 @@ else
 fi
 control_path="$HOME/.rdocker-master-$(date +%s%N)"
 
-ssh "${remote_host}" -i "$ssh_key_file" -nNf -o "StrictHostKeyChecking no" -o ControlMaster=yes -o ControlPath="${control_path}" -o ControlPersist=yes
+ssh "${remote_host}" -p ${SSH_PORT} -i "$ssh_key_file" -nNf -o "StrictHostKeyChecking no" -o ControlMaster=yes -o ControlPath="${control_path}" -o ControlPersist=yes
 
 if [ ! -S "${control_path}" ]; then
     exit
@@ -47,12 +50,12 @@ fi
 
 find_port_code="import socket;s=socket.socket(socket.AF_INET, socket.SOCK_STREAM);s.bind(('', 0));print(s.getsockname()[1]);s.close()"
 
-remote_port=$(ssh "${remote_host}" -i "$ssh_key_file" -o ControlPath="${control_path}" python -c \"$find_port_code\")
+remote_port=$(ssh "${remote_host}" -p ${SSH_PORT} -i "$ssh_key_file" -o ControlPath="${control_path}" python -c \"$find_port_code\")
 
 if [ -z "$remote_port" ]; then
     echo "ERROR: Failed to find a free port. This usually happens when python is not installed on the remote host."
     #clear the ssh control connection
-    ssh -O exit -o ControlPath="$control_path" "$remote_host" "" 2> /dev/null
+    ssh -O exit -o ControlPath="$control_path" "$remote_host" -p ${SSH_PORT} "" 2> /dev/null
     rm -f "$control_path"
     exit 1
 fi
@@ -142,7 +145,7 @@ remote_script_path="/tmp/rdocker-forwarder.py"
 remote_python="docker run -i --rm --name remote_python --network=host -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock frolvlad/alpine-python2 python"
 # remote_python="python"
 
-printf "%s" "$forwarder" | ssh -i "$ssh_key_file" "$remote_host" -o ControlPath="$control_path" -L "$local_port:localhost:$remote_port" "cat > ${remote_script_path}""; exec ${remote_python} -u ${remote_script_path}" 1>&3 &
+printf "%s" "$forwarder" | ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} -o ControlPath="$control_path" -L "$local_port:localhost:$remote_port" "cat > ${remote_script_path}""; exec ${remote_python} -u ${remote_script_path}" 1>&3 &
 CONNECTION_PID=$!
 # wait for it's output
 read -r -u 3 -d . line
@@ -156,8 +159,8 @@ if [[ "$line" == "$success_msg" ]]; then
         exit_status=$?
         kill -15 $CONNECTION_PID
         #clear the ssh control connection
-        ssh -i "$ssh_key_file" "$remote_host" "docker rm -f remote_python" 1>& 2> /dev/null
-        ssh -O exit -o ControlPath="$control_path" "$remote_host" "" 2> /dev/null
+        ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" 1>& 2> /dev/null
+        ssh -O exit -o ControlPath="$control_path" "$remote_host" -p ${SSH_PORT} "" 2> /dev/null
         rm -f "$control_path"
         #exit with the same status as the command
         exit $exit_status
@@ -180,6 +183,6 @@ else
 fi
 
 #clear the ssh control connection
-ssh -i "$ssh_key_file" "$remote_host" "docker rm -f remote_python" 1>& 2> /dev/null
-ssh -O exit -o ControlPath="$control_path" "$remote_host" "" 2> /dev/null
+ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" 1>& 2> /dev/null
+ssh -O exit -o ControlPath="$control_path" "$remote_host" -p ${SSH_PORT} "" 2> /dev/null
 rm -f "$control_path"

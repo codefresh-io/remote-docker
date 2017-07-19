@@ -42,6 +42,10 @@ You can also execute any `docker` command directly, without openning a `bash` sh
 
     $ docker run -it --rm -v ${HOME}/.ssh/id_rdocker:/root/.ssh/id_rdocker codefresh/remote-docker rdocker user@webserver.com docker info
 
+### Custom SSH port
+
+Redefine `SSH_PORT` environment variable if you are using a different port than `22` (set by default).
+
 ## Used software
 
 - Copy of `rdocker.sh` script (MIT license) from (dvddarias/rdocker)[https://github.com/dvddarias/rdocker]
