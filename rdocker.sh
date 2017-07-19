@@ -1,7 +1,10 @@
 #!/bin/bash
 set -e
 
+# use ssh port; allow to override
 SSH_PORT=${SSH_PORT:-22}
+# use Python as Docker image by default
+PYTHON_DOCKER=${PYTHON_DOCKER:-true}
 
 re='^[0-9]+$'
 if [[ $# -eq 0 || $1 == "-h" || $1 == "-help" ]]; then
@@ -142,8 +145,10 @@ exec 3<>"$PIPE"; rm "$PIPE"
 local_port=${local_port:-$(python -c "$find_port_code")}
 
 remote_script_path="/tmp/rdocker-forwarder.py"
-remote_python="docker run -i --rm --name remote_python --network=host -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock frolvlad/alpine-python2 python"
-# remote_python="python"
+remote_python="python"
+if [[ "$PYTHON_DOCKER" == true ]]; then
+  remote_python="docker run -i --rm --name remote_python --network=host -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock frolvlad/alpine-python2 python"
+fi
 
 printf "%s" "$forwarder" | ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} -o ControlPath="$control_path" -L "$local_port:localhost:$remote_port" "cat > ${remote_script_path}""; exec ${remote_python} -u ${remote_script_path}" 1>&3 &
 CONNECTION_PID=$!
@@ -159,7 +164,9 @@ if [[ "$line" == "$success_msg" ]]; then
         exit_status=$?
         kill -15 $CONNECTION_PID
         #clear the ssh control connection
-        ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" 1>& 2> /dev/null
+        if [[ "$PYTHON_DOCKER" == true ]]; then 
+          ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" 1>& 2> /dev/null
+        fi
         ssh -O exit -o ControlPath="$control_path" "$remote_host" -p ${SSH_PORT} "" 2> /dev/null
         rm -f "$control_path"
         #exit with the same status as the command
@@ -183,6 +190,8 @@ else
 fi
 
 #clear the ssh control connection
-ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" 1>& 2> /dev/null
+if [[ "$PYTHON_DOCKER" == true ]]; then
+  ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" 1>& 2> /dev/null
+fi
 ssh -O exit -o ControlPath="$control_path" "$remote_host" -p ${SSH_PORT} "" 2> /dev/null
 rm -f "$control_path"
