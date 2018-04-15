@@ -191,7 +191,7 @@ else
 fi
 
 #clear the ssh control connection
-if [[ "$PYTHON_DOCKER" == true ]]; then
+if [[ "$PYTHON_DOCKER_DONE" == true ]]; then
   ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" 1>& 2> /dev/null
 fi
 ssh -O exit -o ControlPath="$control_path" "$remote_host" -p ${SSH_PORT} "" 2> /dev/null
