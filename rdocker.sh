@@ -148,7 +148,7 @@ remote_script_path="/tmp/rdocker-forwarder.py"
 remote_python="python"
 if [[ "$PYTHON_DOCKER" == true ]]; then
   remote_python="docker run -i --name remote_python --rm --network=host -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock frolvlad/alpine-python2 python"
-  PYTHON_DOCKER_DONE=true
+  ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python"
 fi
 
 printf "%s" "$forwarder" | ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} -o ControlPath="$control_path" -L "$local_port:localhost:$remote_port" "cat > ${remote_script_path}""; exec ${remote_python} -u ${remote_script_path}" 1>&3 &
@@ -165,7 +165,7 @@ if [[ "$line" == "$success_msg" ]]; then
         exit_status=$?
         kill -15 $CONNECTION_PID
         #clear the ssh control connection
-        if [[ "$PYTHON_DOCKER_DONE" == true ]]; then 
+        if [[ "$PYTHON_DOCKER" == true ]]; then 
           ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" 1>& 2> /dev/null
         fi
         ssh -O exit -o ControlPath="$control_path" "$remote_host" -p ${SSH_PORT} "" 2> /dev/null
@@ -191,7 +191,7 @@ else
 fi
 
 #clear the ssh control connection
-if [[ "$PYTHON_DOCKER_DONE" == true ]]; then
+if [[ "$PYTHON_DOCKER" == true ]]; then
   ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" 1>& 2> /dev/null
 fi
 ssh -O exit -o ControlPath="$control_path" "$remote_host" -p ${SSH_PORT} "" 2> /dev/null
