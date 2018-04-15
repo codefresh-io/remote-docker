@@ -148,6 +148,10 @@ remote_script_path="/tmp/rdocker-forwarder.py"
 remote_python="python"
 if [[ "$PYTHON_DOCKER" == true ]]; then
   remote_python="docker run -i --name remote_python --rm --network=host -v /tmp:/tmp -v /var/run/docker.sock:/var/run/docker.sock frolvlad/alpine-python2 python"
+  PYTHON_DOCKER_DONE = true
+fi
+
+if [[ "$PYTHON_DOCKER_DONE" == true ]]; then
   ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python"
 fi
 
