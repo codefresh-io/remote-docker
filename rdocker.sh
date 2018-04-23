@@ -144,7 +144,11 @@ exec 3<>"$PIPE"; rm "$PIPE"
 # find a free port or use the provided one
 local_port=${local_port:-$(python -c "$find_port_code")}
 
-ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" || true
+if [[ ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker ps | grep remote_python" ]]; then
+    ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" || true
+fi
+
+#ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" || true
 remote_script_path="/tmp/rdocker-forwarder.py"
 remote_python="python"
 if [[ "$PYTHON_DOCKER" == true ]]; then
