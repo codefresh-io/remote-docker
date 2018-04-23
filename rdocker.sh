@@ -148,7 +148,6 @@ if [[ "$(ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker ps | grep 
     ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" || true
 fi
 
-#ssh -i "$ssh_key_file" "$remote_host" -p ${SSH_PORT} "docker rm -f remote_python" || true
 remote_script_path="/tmp/rdocker-forwarder.py"
 remote_python="python"
 if [[ "$PYTHON_DOCKER" == true ]]; then
