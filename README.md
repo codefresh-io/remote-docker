@@ -24,7 +24,7 @@ Lets assume you want to control the docker daemon on your `webserver.com` server
 
 Or you can pass `ssh` key as the environment variable (assuming you've setup `SSH_KEY`)
 
-    $ docker run -it --rm -e SSH-KEY=${SSH_KEY} codefresh/remote-docker rdocker user@webserver.com
+    $ docker run -it --rm -e SSH_KEY=${SSH_KEY} codefresh/remote-docker rdocker user@webserver.com
 
 This will open a new `bash` session, within the `codefresh/remote-docker` container, with a new `DOCKER_HOST` variable setup. Any `docker` command you execute will take place on the remote docker daemon.
 To test the connection run:
