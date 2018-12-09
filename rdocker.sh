@@ -22,7 +22,7 @@ fi
 ssh_key_file="$HOME/.ssh/id_rdocker"
 if [[ ! -f "$ssh_key_file" ]]; then 
   if [[ ! -z "${SSH_KEY}" ]]; then
-    echo "SSH key passed through SSH_KEY environment variable: lenght check ${#SSH_KEY}"
+    echo "SSH key passed through SSH_KEY environment variable: length check ${#SSH_KEY}"
     mkdir -p ~/.ssh
     if [[ ! -z "${SPLIT_CHAR}" ]]; then
       echo "${SSH_KEY}" | tr \'"${SPLIT_CHAR}"\' '\n' > "$ssh_key_file"
